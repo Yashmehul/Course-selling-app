@@ -7,7 +7,7 @@ userRouter.post("/signup",(req,res)=>{
     })
 })
 
-userRouter.post("/singin",(Req,res)=>{
+userRouter.post("/signin",(Req,res)=>{
     res.json({
         message:"singin endpoint"
     })
