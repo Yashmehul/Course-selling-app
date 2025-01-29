@@ -13,7 +13,11 @@ courseRouter.get("/preview",(req,res)=>{
         message:"this is all the courses"
     })
 })
-
+courseRouter.get("/bulk",(req,res)=>{
+    res.json({
+        msg:"All the courses that has been bought"
+    })
+})
 module.exports={
     courseRouter:courseRouter
 }
