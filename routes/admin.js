@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const adminRouter = Router();
-const { adminModel, userModel } = require("../db");
+const { adminModel, userModel, courseModel } = require("../db");
+const { adminMiddleware }=require("../middleware/admin");
 const jwt = require("jsonwebtoken");
 const zod = require("zod");
 const bcrypt = require("bcrypt");
@@ -50,11 +51,25 @@ adminRouter.post("/signin", async (req, res) => {
     return res.status(404).json({ msg: "Invalid email or password" });
 });
 
-adminRouter.post("/courses", (req, res) => {
+adminRouter.post("/courses",adminMiddleware,async(req, res) => {
+    const adminId=req.adminId;
+    const{title,desciption,imageUrl,price}=req.body;
+   const course=await courseModel.create({
+        title:title,
+        description:desciption,
+        imageUrl:imageUrl,
+        price:price,
+        creatorId:adminId
+    })
+    res.status(201).json({
+        message:"Course created successfully",
+        courseId:course._id
+    })
+
     res.json({ msg: "Admin course endpoint" });
 });
 
-adminRouter.get("/course/bulk", (req, res) => {
+adminRouter.get("/course/bulk",adminMiddleware ,(req, res) => {
     res.json({ msg: "Admin all course access endpoint" });
 });
 

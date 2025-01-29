@@ -5,6 +5,7 @@ const userRouter=Router();
 const jwt=require("jsonwebtoken");
 const zod=require("zod"); 
 const bcrypt=require("bcrypt");
+const { userMiddleware } = require("../middleware/user");
 require("dotenv").config();
 
 const emailSchema=zod.string().email();
@@ -66,7 +67,7 @@ userRouter.post("/signin",async(req,res)=>{
     }
 })
 
-userRouter.get("/purchases",(req,res)=>{
+userRouter.get("/purchases",userMiddleware,(req,res)=>{
     res.json({
         message:"courses purchased"
     })
