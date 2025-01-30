@@ -1,6 +1,6 @@
 const jwt=require("jsonwebtoken");
 function adminMiddleware(req,res,next){
-    const token=req.token;
+    const token=req.headers.token;
     const decoded=jwt.verify(token,process.env.JWT_ADMIN_SECRET);
 
     if(decoded){

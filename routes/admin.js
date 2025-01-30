@@ -51,12 +51,35 @@ adminRouter.post("/signin", async (req, res) => {
     return res.status(404).json({ msg: "Invalid email or password" });
 });
 
-adminRouter.post("/courses",adminMiddleware,async(req, res) => {
+adminRouter.post("/course",adminMiddleware,async(req, res) => {
     const adminId=req.adminId;
-    const{title,desciption,imageUrl,price}=req.body;
+    const{title,description,imageUrl,price}=req.body;
+    const descriptionSchema=zod.string();
+    const titleSchema=zod.string();
+    const imageUrlSchema=zod.string().url().regex(/\.(jpeg|jpg|png|webp)$/i,"Must be a valid imageUrl")
+    const priceSchema=zod.number().nonnegative();
+    const titleValidation=titleSchema.safeParse(title);
+    const descriptionValidation=descriptionSchema.safeParse(description);
+    const imageUrlValidation=imageUrlSchema.safeParse(imageUrl);
+    const priceValidation=priceSchema.safeParse(price);
+    // ther is another way to do both schema defining and parsing it 
+    //use--> const titleValidation=zod.string().safeParse(title)
+    //lly-->const priceValidation=zod.number().nonnegative().safeParse(price)..... and so on...
+    const errors=[];
+    if(!titleValidation.success) errors.push(...titleValidation.error.errors);
+    if(!descriptionValidation.success) errors.push(...descriptionValidation.error.errors);
+    if(!imageUrlValidation.success) errors.push(...imageUrlValidation.error.errors);
+    if(!priceValidation.success) errors.push(...priceValidation.error.errors);
+
+    if(errors.length>0){
+        return res.status(400).json({
+            msg:"You have givenincorrect input",
+            errors
+        })
+    }
    const course=await courseModel.create({
         title:title,
-        description:desciption,
+        description:description,
         imageUrl:imageUrl,
         price:price,
         creatorId:adminId
@@ -65,12 +88,42 @@ adminRouter.post("/courses",adminMiddleware,async(req, res) => {
         message:"Course created successfully",
         courseId:course._id
     })
-
-    res.json({ msg: "Admin course endpoint" });
 });
 
-adminRouter.get("/course/bulk",adminMiddleware ,(req, res) => {
-    res.json({ msg: "Admin all course access endpoint" });
+adminRouter.put("/courses",adminMiddleware,async(req,res)=>{
+try{
+   const{title,description,imageUrl,price}=req.body;
+    const course=await courseModel.findOne({title:title});
+    if(!course){
+        return res.status(404).json({
+            msg:"Course not found"
+        })
+
+    }
+    if(description) course.description=description;
+    if(imageUrl) course.imageUrl=imageUrl;
+    if(price) course.price=price;
+
+    await course.save();
+    res.send(course);
+}catch(error){
+    res.status(500).send(error);
+}
+
+})
+
+adminRouter.get("/course/bulk",adminMiddleware ,async (req, res) => {
+    const creatorId=req.adminId;
+    const courses=await courseModel.find({creatorId:creatorId}); 
+    if(courses.length>0){
+        res.status(200).send(courses);
+    }
+    else{
+        res.status(200).json({
+            msg:"No courses found!"
+        })
+    }
+    
 });
 
 module.exports = { adminRouter };
