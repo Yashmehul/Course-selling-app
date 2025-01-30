@@ -53,7 +53,7 @@ adminRouter.post("/signin", async (req, res) => {
 
 adminRouter.post("/course",adminMiddleware,async(req, res) => {
     const adminId=req.adminId;
-    const{title,description,imageUrl,price}=req.body;
+    const{title,description,price,imageUrl}=req.body;
     const descriptionSchema=zod.string();
     const titleSchema=zod.string();
     const imageUrlSchema=zod.string().url().regex(/\.(jpeg|jpg|png|webp)$/i,"Must be a valid imageUrl")
@@ -80,8 +80,8 @@ adminRouter.post("/course",adminMiddleware,async(req, res) => {
    const course=await courseModel.create({
         title:title,
         description:description,
-        imageUrl:imageUrl,
         price:price,
+        imageUrl:imageUrl,
         creatorId:adminId
     })
     res.status(201).json({
