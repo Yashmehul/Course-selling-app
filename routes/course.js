@@ -1,9 +1,13 @@
 const { Router }=require("express");
-const { PurchaseModel }=require("../db");
+const { userMiddleware }=require("../middleware/user")
+const { purchaseModel }=require("../db");
 const courseRouter=Router();
+const { courseModel }=require("../db");
+const jwt=require("jsonwebtoken");
+
     //hm course purchase krrhe isme hm backedn ko bhejnege post request ki haan
     //i want to buy this course and payment and all......
-    courseRouter.get("/purchase",userMiddleware,userMiddleware,async(req,res)=>{
+    courseRouter.post("/purchase",userMiddleware,async(req,res)=>{
         const userId=req.userId;
         const courseId=req.body.courseId;
     
@@ -23,6 +27,7 @@ const courseRouter=Router();
             message:"All the available courses"
         })
     })
+    console.log("jwt secret key:",process.env.JWT_USER_SECRET)
 module.exports={
     courseRouter:courseRouter
 }

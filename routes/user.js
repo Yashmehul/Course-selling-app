@@ -1,5 +1,5 @@
 const { Router }=require("express");
-const { userModel, purchaseModel } = require("../db");
+const { userModel, purchaseModel, courseModel } = require("../db");
 const userRouter=Router();
 // const { userModel}=require("../db");
 const jwt=require("jsonwebtoken");
@@ -73,13 +73,17 @@ userRouter.get("/purchases",userMiddleware,async(req,res)=>{
     const purchase=await purchaseModel.find({
         userId:userId
     })
-    if(!purchase){
+    if(!purchase.length>0){
         return res.status(404).json({
             msg:"You have no purchased course."
         })
     }
+    const courseData=await courseModel.find({
+        _id:{ $in:purchase.map(x=>x.courseId) }
+    })
     return res.status(200).json({
         purchase,
+        courseData,
         msg:"These are all the purchased course of yours.."
     })
 })
