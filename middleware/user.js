@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 function userMiddleware(req, res, next) {
-    const token = req.headers.token || req.headers.authorization?.split(" ")[1];
+    const token = req.cookies["auth-token"];
 
     if (!token) {
         return res.status(403).json({ message: "You are not signed in" });

@@ -7,6 +7,8 @@ const zod=require("zod");
 const bcrypt=require("bcrypt");
 const { userMiddleware } = require("../middleware/user");
 require("dotenv").config();
+const cookieParser=require("cookie-parser")
+userRouter.use(cookieParser());
 
 const emailSchema=zod.string().email();
 const passwordSchema=zod.string().min(6);
@@ -55,6 +57,13 @@ userRouter.post("/signin",async(req,res)=>{
         const token=await jwt.sign({
             id:user._id.toString()
         },process.env.JWT_USER_SECRET)
+        res.cookie("auth-token",token,{
+            httpOnly:true,
+            secure:false,
+            sameSite:"Strict",
+            maxAge:24*60*60*1000
+        })
+        // console.log("token:",req.cookies["auth-token"]);
         res.status(201).json({
             message:"Signin successfull",
             token:token

@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const zod = require("zod");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
+const cookieParser=require("cookie-parser");
+
+adminRouter.use(cookieParser())
 
 const emailSchema = zod.string().email();
 const passwordSchema = zod.string().min(6);
@@ -45,6 +48,12 @@ adminRouter.post("/signin", async (req, res) => {
 
     if (admin && await bcrypt.compare(password, admin.password)) {
         const token = jwt.sign({ id: admin._id.toString() }, process.env.JWT_ADMIN_SECRET);
+        res.cookie("auth-token",token,{
+            httpOnly:true,
+            secure:false,
+            sameSite:"Strict",
+            maxAge:24*60*60*1000
+         })
         return res.json({ msg: "Signin successful", token: token });
     }
 
