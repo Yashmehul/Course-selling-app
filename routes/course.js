@@ -1,23 +1,28 @@
 const { Router }=require("express");
+const { PurchaseModel }=require("../db");
 const courseRouter=Router();
-courseRouter.post("/purchase",(req,res)=>{
     //hm course purchase krrhe isme hm backedn ko bhejnege post request ki haan
     //i want to buy this course and payment and all......
-    res.json({
-        mesage:"purchase successful"
+    courseRouter.get("/purchase",userMiddleware,userMiddleware,async(req,res)=>{
+        const userId=req.userId;
+        const courseId=req.body.courseId;
+    
+        await purchaseModel.create({
+            userId:userId,
+            courseId:courseId
+        })
+        
+        res.json({
+            message:"You have successfully purchased the course"
+        })
     })
-})
-
-courseRouter.get("/preview",(req,res)=>{
-     res.json({
-        message:"this is all the courses"
+    courseRouter.get("/preview",async(req,res)=>{
+        const courses=await courseModel.find({});
+        res.json({
+            courses,
+            message:"All the available courses"
+        })
     })
-})
-courseRouter.get("/bulk",(req,res)=>{
-    res.json({
-        msg:"All the courses that has been bought"
-    })
-})
 module.exports={
     courseRouter:courseRouter
 }
